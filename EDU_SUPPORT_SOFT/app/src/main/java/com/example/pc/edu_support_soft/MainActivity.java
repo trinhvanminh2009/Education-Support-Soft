@@ -34,6 +34,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 public class MainActivity extends AppCompatActivity {
 
     private ImageView imageView;
@@ -96,8 +98,10 @@ public class MainActivity extends AppCompatActivity {
         btnShow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
+                final SweetAlertDialog sweetAlertDialog = new SweetAlertDialog(MainActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+                sweetAlertDialog.setTitle(R.string.progress_title);
+                sweetAlertDialog.setContentText(getString(R.string.progress_content));
+                sweetAlertDialog.show();
                 Calendar calendar = Calendar.getInstance();
                 StorageReference storeRef = mStorageRef.child(calendar.getTimeInMillis()+".jpg");
                 // Get the data from an ImageView as bytes
@@ -107,11 +111,8 @@ public class MainActivity extends AppCompatActivity {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 byte[] data = baos.toByteArray();
-                Toast.makeText(MainActivity.this, "Before"+ countLab, Toast.LENGTH_SHORT).show();
-
                 UploadTask uploadTask = storeRef.putBytes(data);
                 updateCountLab();
-                Toast.makeText(MainActivity.this, "After"+ countLab, Toast.LENGTH_SHORT).show();
                 uploadTask.addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
@@ -126,9 +127,10 @@ public class MainActivity extends AppCompatActivity {
                                 editTextInfo.getText().toString(),
                                 downloadUrl.toString(),0);
                         databaseReference.child("Lab1").child(""+countLab).setValue(solution);
-
+                        sweetAlertDialog.dismissWithAnimation();
                     }
                 });
+
             }
         });
 
