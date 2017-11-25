@@ -69,7 +69,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    openBackCamera();
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(intent,1);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -112,9 +113,9 @@ public class MainActivity extends AppCompatActivity {
                         @SuppressWarnings("VisibleForTests") Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
                         Solution solution = new Solution(editTextInfo.getText().toString().equals("")? "Unknown":
-                                                                                                        editTextInfo.getText().toString(),
+                                editTextInfo.getText().toString(),
 
-                                                                                                        downloadUrl.toString(),0);
+                                downloadUrl.toString(),0);
                         databaseReference.child("Lab"+(++count)).child(""+studentIndex++).setValue(solution);
 
                     }
@@ -128,11 +129,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
-            if(requestCode==1 && resultCode==RESULT_OK)
-            {
-                //... some code to inflate/create/find appropriate ImageView to place grabbed image
-                this.grabImage(imageView);
-            }
+            bitmap = (Bitmap) data.getExtras().get("data");
+            imageView.setImageBitmap(bitmap);
         }catch (NullPointerException e){
             Toast.makeText(this, "You haven't take a picture yet !", Toast.LENGTH_SHORT).show();
         }
@@ -159,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
            // return false;
         }*/
         photo = this.createTemporaryFile("picture", ".jpg");
-       // photo.delete();
+        // photo.delete();
         mImageUri = Uri.fromFile(photo);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
         //start camera intent
@@ -195,4 +193,3 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
-
