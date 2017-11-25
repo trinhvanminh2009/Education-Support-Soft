@@ -77,9 +77,41 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <SeekBar
+        android:layout_width="300dp"
+        android:layout_marginTop="30dp"
+        android:layout_height="15dp"
+        android:layout_gravity="center"
+        android:id="@+id/seekBar"
+        android:max="510"
+        android:progress="255"
+
+        />
+    <com.xw.repo.BubbleSeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:bsb_bubble_color="@color/color_blue"
+        app:bsb_bubble_text_color="@color/colorPrimaryDark"
+        app:bsb_max="510"
+        app:bsb_min="0"
+        app:bsb_progress="255"
+        app:bsb_second_track_color="@color/color_blue"
+        app:bsb_section_count="5"
+        app:bsb_section_text_position="bottom_sides"
+        app:bsb_show_progress_in_float="true"
+        app:bsb_show_section_mark="true"
+        app:bsb_show_section_text="true"
+        app:bsb_show_thumb_text="true"
+        app:bsb_track_color="@color/color_blue"/>
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:background="@drawable/edit_text_shape"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"/>
+
 
 </LinearLayout>

@@ -29,6 +29,7 @@ dependencies {
     compile 'com.google.firebase:firebase-database:11.6.0'
     compile 'com.google.firebase:firebase-storage:11.6.0'
     compile 'com.github.f0ris.sweetalert:library:1.5.1'
+    compile 'com.xw.repo:bubbleseekbar:3.10-lite'
     compile 'com.github.markushi:circlebutton:1.1'
     testCompile 'junit:junit:4.12'
 }
