@@ -1,17 +1,17 @@
 package com.example.pc.edu_support_soft;
 
-import android.content.ContentResolver;
+import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,14 +20,18 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,11 +43,10 @@ public class MainActivity extends AppCompatActivity {
     private Button btnShow;
     private EditText editTextInfo;
     private DatabaseReference databaseReference;
-    private StorageReference mStorageRef;;
-    private int count = 0;
-    private int studentIndex = 1;
-    //private String pictureImagePath = "";
-    private Uri mImageUri;
+    private StorageReference mStorageRef;
+    private Uri imageUri;
+    private static int PICTURE_RESULT =1;
+    private int countLab = 0;
 
 
     @Override
@@ -58,8 +61,6 @@ public class MainActivity extends AppCompatActivity {
         btnShow = (Button) findViewById(R.id.btnShow);
         editTextInfo = (EditText) findViewById(R.id.editTextInfo);
         databaseReference = FirebaseDatabase.getInstance().getReference();
-
-
         mStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://edusupportsoft.appspot.com");
 
 
@@ -69,8 +70,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
+                 /*   Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(intent,1);*/
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.Images.Media.TITLE, "New Picture");
+                    values.put(MediaStore.Images.Media.DESCRIPTION, "From your camera");
+                    imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(intent,1);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    startActivityForResult(intent, PICTURE_RESULT);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -99,8 +107,11 @@ public class MainActivity extends AppCompatActivity {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 byte[] data = baos.toByteArray();
+                Toast.makeText(MainActivity.this, "Before"+ countLab, Toast.LENGTH_SHORT).show();
 
                 UploadTask uploadTask = storeRef.putBytes(data);
+                updateCountLab();
+                Toast.makeText(MainActivity.this, "After"+ countLab, Toast.LENGTH_SHORT).show();
                 uploadTask.addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
@@ -110,13 +121,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                        @SuppressWarnings("VisibleForTests") Uri downloadUrl = taskSnapshot.getDownloadUrl();
-
+                        @SuppressWarnings("VisibleForTests") final Uri downloadUrl = taskSnapshot.getDownloadUrl();
                         Solution solution = new Solution(editTextInfo.getText().toString().equals("")? "Unknown":
                                 editTextInfo.getText().toString(),
-
                                 downloadUrl.toString(),0);
-                        databaseReference.child("Lab"+(++count)).child(""+studentIndex++).setValue(solution);
+                        databaseReference.child("Lab1").child(""+countLab).setValue(solution);
 
                     }
                 });
@@ -129,11 +138,31 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
-            bitmap = (Bitmap) data.getExtras().get("data");
-            imageView.setImageBitmap(bitmap);
+            if(requestCode == PICTURE_RESULT && resultCode == Activity.RESULT_OK){
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                imageView.setImageBitmap(bitmap);
+            }
         }catch (NullPointerException e){
             Toast.makeText(this, "You haven't take a picture yet !", Toast.LENGTH_SHORT).show();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    private void updateCountLab(){
+        databaseReference.child("Lab1").addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    countLab = (int)dataSnapshot.getChildrenCount() +1;
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
     }
     public static Bitmap RotateBitmap(Bitmap source, float angle)
     {
@@ -141,55 +170,7 @@ public class MainActivity extends AppCompatActivity {
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
-    private void openBackCamera() throws Exception {
-        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        startActivityForResult(intent,1);
-        File photo;
-      /*  try
-        {
-            // place where to store camera taken picture
-
-        }
-        catch(Exception e)
-        {
-            Log.v("error", "Can't create file to take picture!");
-            Toast.makeText(this, "Please check SD card! Image shot is impossible!", Toast.LENGTH_LONG);
-           // return false;
-        }*/
-        photo = this.createTemporaryFile("picture", ".jpg");
-        // photo.delete();
-        mImageUri = Uri.fromFile(photo);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
-        //start camera intent
-        startActivityForResult(intent,1);
 
 
-    }
-    private File createTemporaryFile(String part, String ext) throws Exception
-    {
-        File tempDir= Environment.getExternalStorageDirectory();
-        tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
-        if(!tempDir.exists())
-        {
-            tempDir.mkdirs();
-        }
-        return File.createTempFile(part, ext, tempDir);
-    }
-    public void grabImage(ImageView imageView)
-    {
-        this.getContentResolver().notifyChange(mImageUri, null);
-        ContentResolver cr = this.getContentResolver();
-        Bitmap bitmap;
-        try
-        {
-            bitmap = android.provider.MediaStore.Images.Media.getBitmap(cr, mImageUri);
-            imageView.setImageBitmap(bitmap);
-        }
-        catch (Exception e)
-        {
-            Toast.makeText(this, "Failed to load", Toast.LENGTH_SHORT).show();
-            Log.d("error", "Failed to load", e);
-        }
-    }
 
 }
