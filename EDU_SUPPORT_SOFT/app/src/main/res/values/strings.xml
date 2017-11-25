@@ -1,5 +1,13 @@
 <resources>
-    <string name="app_name">EDU_SUPPORT_SOFT</string>
+    <string name="app_name">Education Support</string>
     <string name="progress_title">Loading</string>
+    <string name="camera">Camera</string>
+    <string name="rotation">Rotation</string>
+    <string name="upload">Upload</string>
+    <string name="name_of_student">Name of student</string>
+    <string name="warning">Warning</string>
+    <string name="warning_content">Something went wrong with server!</string>
+    <string name="success">Success</string>
+    <string name="success_content">Upload success!</string>
     <string name="progress_content">Putting image to server. Depending on your connection</string>
 </resources>

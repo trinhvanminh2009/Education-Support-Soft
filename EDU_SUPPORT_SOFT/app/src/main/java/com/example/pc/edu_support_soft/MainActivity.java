@@ -3,7 +3,6 @@ package com.example.pc.edu_support_soft;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -13,7 +12,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -30,19 +28,19 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
 
+import at.markushi.ui.CircleButton;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageView imageView;
-    private Button btnTakeAPicture;
-    private Button btnRotate;
+    CircleButton btnTakeAPicture;
+    CircleButton btnRotate;
+    CircleButton btnShow;
     private Bitmap bitmap;
-    private Button btnShow;
+    private ImageView imageView;
     private EditText editTextInfo;
     private DatabaseReference databaseReference;
     private StorageReference mStorageRef;
@@ -55,12 +53,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+       /* getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);*/
+       if(getSupportActionBar() != null){
+           getSupportActionBar().hide();
 
+       }
         imageView = (ImageView) findViewById(R.id.imageView);
-        btnTakeAPicture = (Button) findViewById(R.id.btnTakeAPicture);
-        btnRotate = (Button) findViewById(R.id.btnRotate);
+        btnTakeAPicture = (CircleButton) findViewById(R.id.btnTakeAPicture);
+        btnRotate = (CircleButton) findViewById(R.id.btnRotate);
         bitmap = BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher);
-        btnShow = (Button) findViewById(R.id.btnShow);
+        btnShow = (CircleButton) findViewById(R.id.btnShow);
         editTextInfo = (EditText) findViewById(R.id.editTextInfo);
         databaseReference = FirebaseDatabase.getInstance().getReference();
         mStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://edusupportsoft.appspot.com");
@@ -72,8 +75,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                 /*   Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(intent,1);*/
+                    imageUri = null;
                     ContentValues values = new ContentValues();
                     values.put(MediaStore.Images.Media.TITLE, "New Picture");
                     values.put(MediaStore.Images.Media.DESCRIPTION, "From your camera");
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         btnRotate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bitmap = RotateBitmap(bitmap,90);
+                bitmap = RotateBitmap(bitmap);
                 imageView.setImageBitmap(bitmap);
             }
         });
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 byte[] data = baos.toByteArray();
                 UploadTask uploadTask = storeRef.putBytes(data);
                 updateCountLab();
+                final Uri[] downloadUrl = new Uri[1];
                 uploadTask.addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
@@ -122,12 +125,47 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                        @SuppressWarnings("VisibleForTests") final Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                        Solution solution = new Solution(editTextInfo.getText().toString().equals("")? "Unknown":
-                                editTextInfo.getText().toString(),
-                                downloadUrl.toString(),0);
-                        databaseReference.child("Lab1").child(""+countLab).setValue(solution);
-                        sweetAlertDialog.dismissWithAnimation();
+
+                        downloadUrl[0] = taskSnapshot.getDownloadUrl();
+                        Solution solution;
+                        if(downloadUrl[0] != null){
+                            if(editTextInfo.getText().toString().trim().equals("")){
+                                solution = new Solution(editTextInfo.getText().toString().equals("")? "Unknown":
+                                        editTextInfo.getText().toString(),
+                                        downloadUrl[0].toString(),0);
+                            }else {
+                                solution = new Solution(editTextInfo.getText().toString().equals("")? editTextInfo.getText().toString().trim():
+                                        editTextInfo.getText().toString(),
+                                        downloadUrl[0].toString(),0);
+                            }
+
+                            databaseReference.child("Lab1").child(""+countLab).setValue(solution);
+                            sweetAlertDialog.dismissWithAnimation();
+                            SweetAlertDialog sweetAlertSuccess = new SweetAlertDialog(MainActivity.this, SweetAlertDialog.SUCCESS_TYPE);
+                            sweetAlertSuccess.setTitle(R.string.success);
+                            sweetAlertSuccess.setContentText(getString(R.string.success_content));
+                            sweetAlertSuccess.show();
+                            sweetAlertSuccess.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                @Override
+                                public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                    finish();
+                                    overridePendingTransition( 0, 0);
+                                    startActivity(getIntent());
+                                    overridePendingTransition( 0, 0);
+                                }
+                            });
+                        }else{
+                            final SweetAlertDialog alertShowError = new SweetAlertDialog(MainActivity.this, SweetAlertDialog.WARNING_TYPE);
+                            alertShowError.setTitle(R.string.warning);
+                            alertShowError.setContentText(getString(R.string.warning_content));
+                            alertShowError.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                @Override
+                                public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                    alertShowError.dismissWithAnimation();
+                                }
+                            });
+                        }
+
                     }
                 });
 
@@ -146,8 +184,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }catch (NullPointerException e){
             Toast.makeText(this, "You haven't take a picture yet !", Toast.LENGTH_SHORT).show();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -166,13 +202,10 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
     }
-    public static Bitmap RotateBitmap(Bitmap source, float angle)
+    public static Bitmap RotateBitmap(Bitmap source)
     {
         Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
+        matrix.postRotate((float) 90);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
-
-
-
 }

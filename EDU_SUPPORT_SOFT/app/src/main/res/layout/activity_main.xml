@@ -7,26 +7,76 @@
     android:orientation="vertical"
     tools:context="com.example.pc.edu_support_soft.MainActivity">
 
-    <Button
-        android:id="@+id/btnTakeAPicture"
-        android:text="Take a picture"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/btnRotate"
-        android:text="Rotatate"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="10dp"
+        android:layout_height="wrap_content">
+        <at.markushi.ui.CircleButton
+            android:id="@+id/btnTakeAPicture"
+            android:layout_width="64dp"
+            android:layout_alignParentStart="true"
+            android:src="@drawable/ic_action_camera"
+            android:layout_height="64dip"
+            app:cb_color="#3782fe"
+            app:cb_pressedRingWidth="8dip"/>
+
+        <at.markushi.ui.CircleButton
+            android:id="@+id/btnRotate"
+            android:layout_width="64dip"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_action_rotation"
+            android:layout_height="64dip"
+            app:cb_color="#3782fe"
+            app:cb_pressedRingWidth="8dip"/>
+        <at.markushi.ui.CircleButton
+            android:id="@+id/btnShow"
+            android:layout_width="64dip"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_action_post"
+            android:layout_height="64dip"
+            app:cb_color="#3782fe"
+            app:cb_pressedRingWidth="8dip"/>
+
+    </RelativeLayout>
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="@string/camera"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="10dp"
+            android:text="@string/rotation"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:text="@string/upload"
+            />
+    </RelativeLayout>
+
     <EditText
-        android:hint="Who did it?"
+        android:hint="@string/name_of_student"
         android:id="@+id/editTextInfo"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/edit_text_shape"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-    <Button
-        android:text="Show"
-        android:id="@+id/btnShow"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
