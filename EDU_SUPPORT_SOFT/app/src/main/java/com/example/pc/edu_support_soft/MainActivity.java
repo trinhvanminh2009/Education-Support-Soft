@@ -1,15 +1,17 @@
 package com.example.pc.edu_support_soft;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,6 +27,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,6 +40,11 @@ public class MainActivity extends AppCompatActivity {
     private EditText editTextInfo;
     private DatabaseReference databaseReference;
     private StorageReference mStorageRef;;
+    private int count = 0;
+    private int studentIndex = 1;
+    //private String pictureImagePath = "";
+    private Uri mImageUri;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +64,15 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
+        ///take pic
         btnTakeAPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent,0);
+                try {
+                    openBackCamera();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -103,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
                         Solution solution = new Solution(editTextInfo.getText().toString().equals("")? "Unknown":
                                                                                                         editTextInfo.getText().toString(),
 
-                                                                                                        downloadUrl.toString());
-                        databaseReference.setValue(solution);
+                                                                                                        downloadUrl.toString(),0);
+                        databaseReference.child("Lab"+(++count)).child(""+studentIndex++).setValue(solution);
 
                     }
                 });
@@ -117,11 +128,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
-            bitmap = (Bitmap) data.getExtras().get("data");
-            imageView.setImageBitmap(bitmap);
+            if(requestCode==1 && resultCode==RESULT_OK)
+            {
+                //... some code to inflate/create/find appropriate ImageView to place grabbed image
+                this.grabImage(imageView);
+            }
         }catch (NullPointerException e){
             Toast.makeText(this, "You haven't take a picture yet !", Toast.LENGTH_SHORT).show();
-        };
+        }
     }
     public static Bitmap RotateBitmap(Bitmap source, float angle)
     {
@@ -129,5 +143,56 @@ public class MainActivity extends AppCompatActivity {
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
+    private void openBackCamera() throws Exception {
+        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+        startActivityForResult(intent,1);
+        File photo;
+      /*  try
+        {
+            // place where to store camera taken picture
+
+        }
+        catch(Exception e)
+        {
+            Log.v("error", "Can't create file to take picture!");
+            Toast.makeText(this, "Please check SD card! Image shot is impossible!", Toast.LENGTH_LONG);
+           // return false;
+        }*/
+        photo = this.createTemporaryFile("picture", ".jpg");
+       // photo.delete();
+        mImageUri = Uri.fromFile(photo);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+        //start camera intent
+        startActivityForResult(intent,1);
+
+
+    }
+    private File createTemporaryFile(String part, String ext) throws Exception
+    {
+        File tempDir= Environment.getExternalStorageDirectory();
+        tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
+        if(!tempDir.exists())
+        {
+            tempDir.mkdirs();
+        }
+        return File.createTempFile(part, ext, tempDir);
+    }
+    public void grabImage(ImageView imageView)
+    {
+        this.getContentResolver().notifyChange(mImageUri, null);
+        ContentResolver cr = this.getContentResolver();
+        Bitmap bitmap;
+        try
+        {
+            bitmap = android.provider.MediaStore.Images.Media.getBitmap(cr, mImageUri);
+            imageView.setImageBitmap(bitmap);
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(this, "Failed to load", Toast.LENGTH_SHORT).show();
+            Log.d("error", "Failed to load", e);
+        }
+    }
+
 }
 
