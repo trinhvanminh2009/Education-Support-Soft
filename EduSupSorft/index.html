@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link href="Boostrap/css/demo.css" rel="stylesheet">
+    <link href="Boostrap/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <title>Edu Support Soft</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+
+<header>
+
+    <div class="navbar navbar-dark bg-dark" style="background: black !important;position: fixed;z-index: 10;width: 100%;">
+        <div class="container d-flex justify-content-between">
+            <a href=""><img style="cursor: pointer;width: 50px;height: 50px;" src="img/icon.png"></a>
+            <a href="" class="navbar-brand">Object-oriented programming</a>
+            <form onsubmit="onSub()" class="form-inline my-2 my-lg-0">
+                <input id="txtSearch" class="form-control mr-sm-2" placeholder="Search" aria-label="Search" type="text">
+                <!-- <button id="search" class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button> -->
+            </form>
+            </button>
+        </div>
+    </div>
+</header>
+
+<script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
+<script src="test.js"></script>
+<main role="main">
+    <div  style="background-color: #343a40" class="album text-muted">
+        <div class="container">
+            <div class="row">
+                
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="text-muted">
+    <div class="container">
+        <p class="float-right">
+            <a href="#">Back to top</a>
+        </p>
+        <p>Education Support Soft &copy; 2017</p>
+        <p>Application Example <a href="../../">HACKATHON 2017</a> <a href="../../getting-started/"></a>.</p>
+    </div>
+</footer>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+    <span class="closes">&times;</span>
+    <div id="image-control">
+        <div id="div-modal-content">
+            <img class="modal-content" id="img01">
+        </div>
+        <div id="wraper">
+            <a onclick="zoomOut()" style="padding: 10px" href="#"><img src="img/zoom-out.png" alt="" width="24px"></a>
+            <a style="padding: 10px" id="rotate-left" href="#"><img src="img/rotate-left.png" alt="" width="24px"></a>
+            <a onclick="toggleFullScreen(document.body)" style="padding: 10px" id="full-screen" href="#"><img src="img/expand-arrows.png" alt="" width="24px"></a>
+            <a style="padding: 10px" id="rotate-right" href="#"><img src="img/rotate-right.png" alt="" width="24px"></a>
+            <a onclick="zoomIn()" style="padding: 10px" href="#"><img src="img/zoom-in.png" alt="" width="24px"></a>
+        </div>
+    </div>
+    <div id="caption"></div>
+</div>
+</body>
+</html>

@@ -19,7 +19,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -54,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
     private Uri imageUri;
     private static int PICTURE_RESULT =1;
     private int countLab = 0;
-    private SeekBar seekBar;
     private BubbleSeekBar bubbleSeekBar;
     private static final int REQUEST_PERMISSION = 101;
 
@@ -79,23 +77,22 @@ public class MainActivity extends AppCompatActivity {
         bitmap = BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher);
         btnShow = (CircleButton) findViewById(R.id.btnShow);
         editTextInfo = (EditText) findViewById(R.id.editTextInfo);
-        seekBar = (SeekBar)findViewById(R.id.seekBar);
-        
         databaseReference = FirebaseDatabase.getInstance().getReference();
         mStorageRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://edusupportsoft.appspot.com");
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        bubbleSeekBar = (BubbleSeekBar)findViewById(R.id.bubbleSeekBar);
+        bubbleSeekBar.setOnProgressChangedListener(new BubbleSeekBar.OnProgressChangedListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            public void onProgressChanged(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
                 configBrightness(imageView);
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+            public void getProgressOnActionUp(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
 
             }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            public void getProgressOnFinally(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
 
             }
         });
@@ -107,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     imageUri = null;
+                    imageView.setVisibility(View.VISIBLE);
                     ContentValues values = new ContentValues();
                     values.put(MediaStore.Images.Media.TITLE, "New Picture");
                     values.put(MediaStore.Images.Media.DESCRIPTION, "From your camera");
@@ -266,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void configBrightness(ImageView iv){
 
-        float brightness = (float)(seekBar.getProgress() - 255);
+        float brightness = (float)(bubbleSeekBar.getProgress() - 255);
 
         float[] colorMatrix = {
                 1,0,0,0,brightness,

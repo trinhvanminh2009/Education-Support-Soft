@@ -1,0 +1,41 @@
+#image-control {
+    margin: auto;
+    display: block;
+    max-width: 980px;
+    text-align: center;
+    color: #ccc;
+    padding: 0;
+    position: relative;
+}
+#wraper {
+    margin: auto;
+    bottom: 0;
+    height: 45px;
+    z-index: 10;
+    background-color: #00000080;
+}
+.modal {
+     background-color: #00000080;
+}
+#wraper #rotate-left,#wraper:hover #rotate-right {
+    display: inline-block
+}
+#div-modal-content {
+    margin: auto;
+    height: 580px;
+    max-width: 980px;
+    overflow: hidden;
+}
+/* full screen */
+#myModal.full #div-modal-content {
+    max-height: 680px;
+    max-width: 980px;
+    height: 650px;
+    overflow: hidden;
+}
+#myModal.full .modal-content {
+    max-height: 640px;
+}
+#myModal.full {
+    background-color: black;
+}
