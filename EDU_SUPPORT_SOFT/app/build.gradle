@@ -31,7 +31,9 @@ dependencies {
     compile 'com.github.f0ris.sweetalert:library:1.5.1'
     compile 'com.xw.repo:bubbleseekbar:3.10-lite'
     compile 'com.github.markushi:circlebutton:1.1'
+    compile 'com.google.android.gms:play-services-vision:11.6.0'
     testCompile 'junit:junit:4.12'
+
 }
 
 

@@ -97,6 +97,11 @@
         app:bsb_show_thumb_text="true"
         app:bsb_track_color="@color/color_blue"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red_btn_bg_color"
+        android:id="@+id/detectedView"/>
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
@@ -106,6 +111,7 @@
         android:adjustViewBounds="true"
         android:background="@drawable/edit_text_shape"
         android:scaleType="fitXY" />
+
 
 
 </LinearLayout>
